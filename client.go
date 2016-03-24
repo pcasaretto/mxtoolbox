@@ -68,7 +68,6 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Authorization", "***REMOVED***")
 
 	return req, nil
 }

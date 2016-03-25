@@ -26,6 +26,23 @@ func NewClient(httpClient *http.Client) *Client {
 	return c
 }
 
+type TokenAuthTransport struct {
+	http.RoundTripper
+	Token string
+}
+
+func (t *TokenAuthTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	r.Header.Add("Authorization", t.Token)
+	return t.RoundTripper.RoundTrip(r)
+}
+
+func NewClientWithToken(token string) *Client {
+	c := NewClient(nil)
+
+	c.client.Transport = &TokenAuthTransport{http.DefaultTransport, token}
+	return c
+}
+
 func (c *Client) Do(req *http.Request, v interface{}) error {
 	resp, err := c.client.Do(req)
 	if err != nil {

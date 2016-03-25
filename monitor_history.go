@@ -1,6 +1,9 @@
 package mxtoolbox
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type HistoryEntry struct {
 	Name                   string      `json:"Name"`
@@ -19,7 +22,7 @@ type HistoryEntry struct {
 	DomainLarUID           string      `json:"DomainLarUID"`
 	RecordCount            int         `json:"RecordCount"`
 	TransitionID           string      `json:"TransitionID"`
-	TransitionedOn         string      `json:"TransitionedOn"`
+	TransitionedOn         *Time       `json:"TransitionedOn"`
 	TransitionedSubaction  struct {
 		ID        int         `json:"ID"`
 		Name      string      `json:"Name"`
@@ -27,6 +30,20 @@ type HistoryEntry struct {
 		URL       interface{} `json:"Url"`
 		DelistURL interface{} `json:"DelistUrl"`
 	} `json:"TransitionedSubaction"`
+}
+
+type Time struct {
+	time.Time
+}
+
+const ctLayout = "2006-01-02T15:04:05.999999999"
+
+func (t *Time) UnmarshalJSON(b []byte) (err error) {
+	if b[0] == '"' && b[len(b)-1] == '"' {
+		b = b[1 : len(b)-1]
+	}
+	t.Time, err = time.Parse(ctLayout, string(b))
+	return
 }
 
 func (s *MonitorsService) History(monitorUUID string) ([]HistoryEntry, error) {
